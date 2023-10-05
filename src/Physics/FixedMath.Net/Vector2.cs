@@ -74,4 +74,9 @@ public struct Vector2
     {
         return this / Magnitude();
     }
+
+    public override string ToString()
+    {
+        return $"({x}, {y})";
+    }
 }
