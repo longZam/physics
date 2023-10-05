@@ -8,7 +8,16 @@ public struct AABB
 {
     public Vector2 min, max;
 
-    public Vector2 Center => (min + max) / 2;
+    public Vector2 Center
+    {
+        get => (min + max) / 2;
+        set
+        {
+            Vector2 delta = value - Center;
+            min += delta;
+            max += delta;
+        }
+    }
     public Vector2 Extends => max - min;
 
 
