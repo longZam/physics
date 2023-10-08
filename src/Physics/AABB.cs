@@ -1,3 +1,4 @@
+using Collections.Pooled;
 using FixedMath.NET;
 
 namespace Physics;
@@ -83,5 +84,64 @@ public struct AABB
         distance = penetration.Magnitude();
 
         return true;
+    }
+
+    public bool Raycast(Vector2 origin, Vector2 direction, Fix64 maxDistance, out Vector2 result)
+    {
+        static Vector2 GetIntersectionPoint(Vector2 v0, Vector2 v1, Vector2 w0, Vector2 w1)
+        {
+            Fix64 a = v0.x * v1.y - v1.x * v0.y;
+            Fix64 b = w0.x * w1.y - w1.x * w0.y;
+
+            return new Vector2(
+                a * (w0.x - w1.x) - (v0.x - v1.x) * b,
+                a * (w0.y - w1.y) - (v0.y - v1.y) * b
+            ) / ((v0.x - v1.x) * (w0.y - w1.y) - (v0.y - v1.y) * (w0.x - w1.x));
+        }
+
+        using PooledList<Vector2> aabbVertices = new PooledList<Vector2>(4, ClearMode.Always)
+        {
+            min,                       // bottomLeft
+            new Vector2(max.x, min.y), // bottomRight
+            new Vector2(min.x, max.y), // topLeft
+            max                        // topRight
+        };
+        using PooledList<Vector2> normals = new PooledList<Vector2>(4, ClearMode.Always)
+        {
+            Vector2.down,
+            Vector2.left,
+            Vector2.right,
+            Vector2.up
+        };
+        using PooledList<int> aabbIndices = new PooledList<int>(8, ClearMode.Always)
+        {
+            0, 1, // bottom
+            0, 2, // left
+            1, 3, // right
+            2, 3, // top
+        };
+
+        Vector2 endPoint = origin + direction.Normalize() * maxDistance;
+
+        for (int i = 0; i < 4; i++)
+        {
+            // 해당 면의 normal 벡터와 내적 연산 결과가 음수일 때만 ray와 충돌 가능성 있음.
+            if (Vector2.Dot(normals[i], direction) >= Fix64.Zero)
+                continue;
+
+            Vector2 start = aabbVertices[aabbIndices[i * 2]];
+            Vector2 end = aabbVertices[aabbIndices[i * 2 + 1]];
+
+            // 겹쳐지는지 확인
+            if (!Vector2.Intersect(origin, endPoint, start, end))
+                continue;
+
+            // ray 충돌 계산
+            result = GetIntersectionPoint(origin, endPoint, start, end);
+            return true;
+        }
+
+        result = Vector2.zero;
+        return false;
     }
 }
