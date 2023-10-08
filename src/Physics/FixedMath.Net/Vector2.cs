@@ -77,6 +77,47 @@ public struct Vector2
         return v.x * w.x + v.y * w.y;
     }
 
+    public static bool Intersect(Vector2 a0, Vector2 a1, Vector2 b0, Vector2 b1)
+    {
+        static int CCW(Vector2 p0, Vector2 p1, Vector2 p2)
+        {
+            Fix64 s = p0.x * p1.y + p1.x * p2.y + p2.x * p0.y
+                - (p1.x * p0.y + p2.x * p1.y + p0.x * p2.y);
+
+            return Fix64.Sign(s);
+        }
+
+        static int ComparisonPoints(Vector2 p0, Vector2 p1)
+        {
+            if (p0 == p1)
+                return 0;
+
+            if (p0.x > p1.x)
+                return 1;
+
+            if (p0.x == p1.x && p0.y > p1.y)
+                return 1;
+
+            return -1;
+        }
+
+        int a0a1 = CCW(a0, a1, b0) * CCW(a0, a1, b1);
+        int b0b1 = CCW(b0, b1, a0) * CCW(b0, b1, a1);
+
+        // 일직선 상에 존재하는 두 선분
+        if (a0a1 == 0 && b0b1 == 0)
+        {
+            if (ComparisonPoints(a0, a1) < 0)
+                (a0, a1) = (a1, a0);
+            if (ComparisonPoints(b0, b1) < 0)
+                (b0, b1) = (b1, b0);
+
+            return ComparisonPoints(a1, b0) >= 0 && ComparisonPoints(a0, b1) <= 0;
+        }
+
+        return a0a1 < 0 && b0b1 < 0;
+    }
+
     public readonly Fix64 SqrMagnitude()
     {
         return this.x * this.x + this.y * this.y;
