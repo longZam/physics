@@ -86,7 +86,7 @@ public struct AABB
         return true;
     }
 
-    public bool Raycast(Vector2 origin, Vector2 direction, Fix64 maxDistance, out Vector2 result)
+    public bool Raycast(Vector2 origin, Vector2 direction, Fix64 maxDistance, out RaycastHit result)
     {
         static Vector2 GetIntersectionPoint(Vector2 v0, Vector2 v1, Vector2 w0, Vector2 w1)
         {
@@ -137,11 +137,15 @@ public struct AABB
                 continue;
 
             // ray 충돌 계산
-            result = GetIntersectionPoint(origin, endPoint, start, end);
+            result = new RaycastHit(
+                point: GetIntersectionPoint(origin, endPoint, start, end),
+                normal: normals[i]
+            );
+
             return true;
         }
 
-        result = Vector2.zero;
+        result = new RaycastHit();
         return false;
     }
 }
