@@ -1,3 +1,5 @@
+using System.Diagnostics.CodeAnalysis;
+
 namespace FixedMath.NET;
 
 
@@ -60,6 +62,21 @@ public struct Vector2
         return v * -1;
     }
 
+    public static bool operator ==(Vector2 v, Vector2 w)
+    {
+        return v.x == w.x && v.y == w.y;
+    }
+
+    public static bool operator !=(Vector2 v, Vector2 w)
+    {
+        return !(v == w);
+    }
+
+    public static Fix64 Dot(Vector2 v, Vector2 w)
+    {
+        return v.x * w.x + v.y * w.y;
+    }
+
     public readonly Fix64 SqrMagnitude()
     {
         return this.x * this.x + this.y * this.y;
@@ -78,5 +95,17 @@ public struct Vector2
     public override string ToString()
     {
         return $"({x}, {y})";
+    }
+
+    // TODO: 값 비교 구현 필요
+    public override bool Equals([NotNullWhen(true)] object? obj)
+    {
+        return base.Equals(obj);
+    }
+
+    // TODO: Vector2의 해시코드 생성을 제대로 재정의해야 함.
+    public override int GetHashCode()
+    {
+        return base.GetHashCode();
     }
 }
