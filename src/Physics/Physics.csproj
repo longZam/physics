@@ -7,6 +7,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Collections.Pooled" Version="1.0.82" />
     <PackageReference Include="FixedMath.NET" Version="1.0.1" />
   </ItemGroup>
 
